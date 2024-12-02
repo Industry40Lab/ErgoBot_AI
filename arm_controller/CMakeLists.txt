@@ -26,12 +26,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
 
 include_directories(include)
 
-add_executable(movegrp_ur5e src/move_ur5e_mz.cpp src/moverobotclass.cpp)
-ament_target_dependencies(movegrp_ur5e rclcpp Boost ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_link_libraries(movegrp_ur5e ${arm_controller_LIBRARIES})
 
-# add_executable(git_dm src/githu.cpp )
-# ament_target_dependencies(git_dm rclcpp Boost ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 add_executable(arm_handler src/holding_controller.cpp src/moverobotclass.cpp)
 ament_target_dependencies(arm_handler rclcpp robot_interface Boost ${THIS_PACKAGE_INCLUDE_DEPENDS})
@@ -41,7 +36,6 @@ target_link_libraries(arm_handler ${arm_controller_LIBRARIES})
 
 install(TARGETS
   movegrp_ur5e
-  # git_dm
   arm_handler
   DESTINATION   lib/${PROJECT_NAME}
 )
