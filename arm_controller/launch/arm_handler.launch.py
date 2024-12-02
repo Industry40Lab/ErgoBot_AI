@@ -1,34 +1,3 @@
-# Copyright (c) 2021 PickNik, Inc.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-#    * Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
-#
-#    * Redistributions in binary form must reproduce the above copyright
-#      notice, this list of conditions and the following disclaimer in the
-#      documentation and/or other materials provided with the distribution.
-#
-#    * Neither the name of the {copyright_holder} nor the names of its
-#      contributors may be used to endorse or promote products derived from
-#      this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-
-#
-# Author: Denis Stogl
-
 import os
 
 from launch_ros.actions import Node
@@ -197,57 +166,10 @@ def launch_setup(context, *args, **kwargs):
         "warehouse_host": warehouse_sqlite_path,
     }
 
-    # Start the actual move_group node/action server
-    # move_group_node = Node(
-    #     package="moveit_ros_move_group",
-    #     executable="move_group",
-    #     output="screen",
-    #     parameters=[
-    #         robot_description,
-    #         robot_description_semantic,
-    #         robot_description_kinematics,
-    #         robot_description_planning,
-    #         ompl_planning_pipeline_config,
-    #         trajectory_execution,
-    #         moveit_controllers,
-    #         planning_scene_monitor_parameters,
-    #         {"use_sim_time": use_sim_time},
-    #         warehouse_ros_config,
-    #     ],
-    # )
 
-    # rviz with moveit configuration
-    # rviz_config_file = PathJoinSubstitution(
-    #     [FindPackageShare(moveit_config_package), "rviz", "view_robot.rviz"]
-    # )
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2_moveit",
-        output="log",
-        parameters=[
-            robot_description,
-            robot_description_semantic,
-            ompl_planning_pipeline_config,
-            robot_description_kinematics,
-            robot_description_planning,
-            warehouse_ros_config,
-        ],
-    )
+
 
     move_group_demo = Node(
-        package="arm_controller",
-        executable="movegrp_ur5e",
-        output="screen",
-        parameters=[
-            robot_description,
-            robot_description_semantic,
-            robot_description_kinematics,
-            robot_description_planning,
-        ],
-    )
-
-    move_group_demo2 = Node(
         package="arm_controller",
         executable="arm_handler",
         output="screen",
@@ -275,7 +197,7 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
     )
 
-    nodes_to_start = [move_group_demo2]
+    nodes_to_start = [move_group_demo]
 
     return nodes_to_start
 
