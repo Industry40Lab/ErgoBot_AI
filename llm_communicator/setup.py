@@ -20,11 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'jarvis = llm_communicator.jarvis:main',
-            'jarvis_robot_manager = llm_communicator.jarvis_robot_manager:main',
-            'jarvis_ui = llm_communicator.jarvis_ui:main',
             'cobot_llm = llm_communicator.cobot_llm:main'
-
         ],
     },
 )
