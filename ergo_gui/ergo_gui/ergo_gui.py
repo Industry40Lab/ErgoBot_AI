@@ -81,9 +81,6 @@ class ergo_gui(Node):
 
         # Set the speech rate if necessary (optional)
         rate = self.engine.getProperty('rate')
-        # msg = String()
-        # msg.data = "Welcom the oprator and introduce yourself to oprator."
-        # self.publisher_.publish(msg)
         self.on_notif = True
         self.dis = False
 
@@ -202,8 +199,6 @@ class ergo_gui(Node):
         self.app.mainloop()
 
 
-    # def voice_record_k(self,event):
-    #     self.voice_record()
     def voice_record(self):
         self.send_button.configure(state="disabled")
         self.recorder_button.configure(state="disabled")
@@ -211,8 +206,6 @@ class ergo_gui(Node):
         msg.data = "robot_ready"
         self.publisher_.publish(msg)
 
-    # def send_command_k(self,event):
-    #     self.send_command()
     def send_command(self):
 
         self.send_button.configure(state="disabled")
@@ -249,7 +242,7 @@ class ergo_gui(Node):
         order_info = order[0]
         for char in ["[","(",")",":"," "]:
             order_info = order_info.replace(char,"")
-        # topic , value =  order_info.split(",")
+
         msg = String()
         msg.data = order_info
         self.publisher_command_.publish(msg)
@@ -336,16 +329,10 @@ class ergo_gui(Node):
 
                             else:
                                 self.posture_score.configure(text = f"Proper posture in upper body", text_color='green')
-                            # if int(reba)>4:
-                            #     print("Rapid Entire Body Score : "+reba+"Posture not proper in your body")
-                            #     print("Posture not proper in your body","Warning")
-                            # else:
-                            #     print("Rapid Entire Body Score : "+reba)
+
                         else:
                             self.posture_score.configure(text="Posture Score Not Available", text_color='orange')
-                            # print("Posture Incorrect")
-                    # Convert frame to RGB (OpenCV uses BGR)
-                    # cv2.imshow("pose_detection",frame)
+
 
                     # Convert frame to PIL Image
                     frame_image = Image.fromarray(frame)
