@@ -10,7 +10,6 @@ import logging
 class RealSense_Cam:
 
     def __init__(self) -> None:
-        # Create an align object
         # rs.align allows us to perform alignment of depth frames to others frames
         # The "align_to" is the stream type to which we plan to align depth frames.
         self.align_to = rs.stream.color
@@ -35,7 +34,6 @@ class RealSense_Cam:
         if not found_rgb:
             logging.debug("The demo requires Depth camera with Color sensor")
             
-            #print("The demo requires Depth camera with Color sensor")
             exit(0)
 
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
