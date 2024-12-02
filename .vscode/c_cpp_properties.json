@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/i40lab/arise_ws/install/robot_interface/include/**",
+        "/home/i40lab/arise_ws/install/panda_info/include/**",
+        "/home/i40lab/arise_usecase2_ws/install/robot_interface/include/**",
+        "/opt/ros/iron/include/**",
+        "/home/i40lab/second_usecase_git/src/ErgoBot_AI/arm_controller/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

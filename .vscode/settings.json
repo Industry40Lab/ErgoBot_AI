@@ -1,0 +1,32 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/i40lab/arise_ws/install/ur_movment_manager/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/rs_location_retrival/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/robotiq_hande_ros2_driver/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/robot_interface/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/panda_workstation/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/panda_info/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/voice_command/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/rula_assessment/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/robot_interface/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/my_ur_moveit/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/llm_communicator/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/ergo_gui/lib/python3.10/site-packages",
+        "/opt/ros/iron/lib/python3.10/site-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/i40lab/arise_ws/install/ur_movment_manager/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/rs_location_retrival/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/robotiq_hande_ros2_driver/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/robot_interface/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/panda_workstation/lib/python3.10/site-packages",
+        "/home/i40lab/arise_ws/install/panda_info/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/voice_command/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/rula_assessment/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/robot_interface/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/my_ur_moveit/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/llm_communicator/lib/python3.10/site-packages",
+        "/home/i40lab/arise_usecase2_ws/install/ergo_gui/lib/python3.10/site-packages",
+        "/opt/ros/iron/lib/python3.10/site-packages"
+    ]
+}
