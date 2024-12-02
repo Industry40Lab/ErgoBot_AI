@@ -16,7 +16,6 @@ find_package(moveit_ros_planning_interface REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(robot_interface REQUIRED)
 
-#find_package(planning_scene_interface REQUIRED)
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   moveit
