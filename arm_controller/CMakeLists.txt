@@ -35,7 +35,6 @@ target_link_libraries(arm_handler ${arm_controller_LIBRARIES})
 
 
 install(TARGETS
-  movegrp_ur5e
   arm_handler
   DESTINATION   lib/${PROJECT_NAME}
 )
