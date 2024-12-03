@@ -6,12 +6,12 @@
 <h1 style="display: flex; align-items: center; justify-content: space-between;">
     ErgoBot_AI: LLM-Enhanced Human-Robot Interaction for Optimized Ergonomic Posture
 </h1>
-
+<p align="center">
 ![Static Badge](https://img.shields.io/badge/Ubuntu-22.04-orange)
 ![Static Badge](https://img.shields.io/badge/Python-3.10-blue)
 ![Static Badge](https://img.shields.io/badge/ROS2-iron-blue)
 ![Static Badge](https://img.shields.io/badge/ROS2-humble-blue)
-
+</p>
 ## Description:
 
 <p align="center">
