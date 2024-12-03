@@ -95,11 +95,31 @@ The work is still in development, we are working to develope the following chang
 
 # Run 
 
-please inorder to run the code follow these instructions:
+please in order to run the code, run the following commands in terminal according to the following order:
 
+Run this to run camera and GUI
 ```bash
+ros2 run ergo_gui ergo_gui
 ```
-
+Run to run llm by running this the sending command bottun will become active 
+```bash
+ros2 run llm_communicator cobot_llm
+```
+Run to activate voice command, please wait for complete loading, and remember to set the vosk model path in the code and then build the related package.
+```bash
+ros2 run voice_command voice_command_system
+```
+Run the following commands one by one to start the moveit ur5 controllers
+```bash
+ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.0.100 launch_rviz:=false
+```
+```bash
+ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:="ur5e" launch_rviz:=false
+```
+ After activating the moveit for ur5 use the following code to activate the arm cotroll by llm model
+```bash
+ros2 launch arm_controller arm_handler.launch.py ur_type:="ur5e"
+```
 
 
 
