@@ -23,4 +23,13 @@ This project is the second use case of <a href="https://arise-middleware.eu/">AR
 
 ### UR5e Moveit2 controller
 
-You can find the code related to this module in the package of <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/arm_controller">arm_controller</a>, where you can see the c++ moveit2 interface associated with moving the universal robot (UR5e in our case) in ROS2. In this package, the <a href="https://github.com/Industry40Lab/ErgoBot_AI/blob/main/arm_controller/src/holding_controller.cpp">file</a> contains the interface and in this code the topics intended to move the robot is analysed and the needed movement will be executed. 
+You can find the code related to this module in the package of <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/arm_controller">arm_controller</a>, where you can see the c++ moveit2 interface associated with moving the universal robot (UR5e in our case) in ROS2. In this package, the <a href="https://github.com/Industry40Lab/ErgoBot_AI/blob/main/arm_controller/src/holding_controller.cpp">file</a> contains the interface and in this code, the topics intended to move the robot is analysed and the needed movement will be executed. 
+
+<p align="center">
+  <img src="materials/diagram2.png" alt="overall diagram"/>
+</p>
+
+<hr>
+
+## LLM implementation in ROS2
+
