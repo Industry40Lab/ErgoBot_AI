@@ -7,7 +7,7 @@
     ErgoBot_AI: LLM-Enhanced Human-Robot Interaction for Optimized Ergonomic Posture
 </h1>
 
-![Static Badge](https://img.shields.io/badge/Ubuntu-22.04-orange)
+![Static Badge](https://img.shields.io/badge/Ubuntu-24.04-orange)
 ![Static Badge](https://img.shields.io/badge/Python-3.10-blue)
 ![Static Badge](https://img.shields.io/badge/ROS2-iron-blue)
 ![Static Badge](https://img.shields.io/badge/ROS2-humble-blue)
@@ -72,6 +72,14 @@ To assess the user posture, currently we used Mediapipe, and the assessment we u
 <hr>
 
 ### GUI
+
+The graphical user interface implemented to improve the communication between oprator and the robot at the package <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/ergo_gui
+">**ergo_gui**</a>.
+
+<p align="center">
+  <img src="materials/BAD_POSE.png" alt="GUI"/>
+</p>
+
 
 
 
