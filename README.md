@@ -88,10 +88,8 @@ The work is still in development, we are working to develope the following chang
 
 | Packages | Curent Status | Planes |
 | ------------------------------------------ |  ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | 
-|  <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/rula_assessment
-">**rula_assessment**</a> | Currently we are using <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker">**Mediapipe**</a> | We are working on development of <a href="https://github.com/ros4hri">**ROS4HRI**</a> |
-| <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/llm_communicator">**llm_communicator**</a> | The current model works with self-implemented <a href="https://github.com/ollama/ollama/tree/main
-">**OLLAMA3.2**</a> | Implementation of rpk from PAL robotics|
+|  <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/rula_assessment">**rula_assessment**</a> | Currently we are using <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker">**Mediapipe**</a> | We are working on development of <a href="https://github.com/ros4hri">**ROS4HRI**</a> |
+| <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/llm_communicator">**llm_communicator**</a> | The current model works with self-implemented <a href="https://github.com/ollama/ollama/tree/main">**OLLAMA3.2**</a> | Implementation of rpk from PAL robotics|
 
 <hr>
 
@@ -99,9 +97,8 @@ The work is still in development, we are working to develope the following chang
 
 please inorder to run the code follow these instructions:
 
-'''
-
-'''
+```bash
+```
 
 
 
