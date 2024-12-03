@@ -23,6 +23,7 @@ This project is the second use case of <a href="https://arise-middleware.eu/">AR
   <li>Graphical User Interface to communicate with operator</li>
 </ul>
 
+In summary, for the first scale-up of the ARISE project in this work, the LLM model has been implemented in the ROS2 framework to facilitate human/robot interaction. The operator sends a vocal command to the robot through a microphone, then the speech signal is transcribed using the VOSK API. Consequently, the transcribed command is forwarded to the Ollama 3.2 model through a ROS2 topic for the identification of the operator’s intention(s). As a result, the intention(s) is translated to low-level robot commands for the trajectory planning via MoveIt2. 
 
 <hr>
 
@@ -34,4 +35,14 @@ You can find the code related to this module in the package of <a href="https://
 <hr>
 
 ## LLM implementation in ROS2
+
+In this project, the LLM implemented to classify the operator intent and to ease the communication between the oprator and the robot. The package related to this task is the <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/llm_communicator">llm_communicator</a>. To implement this part of the project we used, we used **OLLAMA3.2** model.<br> 
+
+This package has two main objectives:
+
+<ol>
+  <li>Notifing the oprator in the case of any notification is needed to communicate to the oprator, such as adjusting the posture.</li>
+  <li>classifying the intended action of the oprator for robot movement.</li>
+</ol>
+
 
