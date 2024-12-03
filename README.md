@@ -7,6 +7,11 @@
     ErgoBot_AI: LLM-Enhanced Human-Robot Interaction for Optimized Ergonomic Posture
 </h1>
 
+![Static Badge](https://img.shields.io/badge/Ubuntu-22.04-orange)
+![Static Badge](https://img.shields.io/badge/Python-3.10-blue)
+![Static Badge](https://img.shields.io/badge/ROS2-iron-blue)
+![Static Badge](https://img.shields.io/badge/ROS2-humble-blue)
+
 ## Description:
 
 <p align="center">
@@ -33,7 +38,8 @@ You can find the code related to this module in the package of <a href="https://
 
 
 <hr>
-## LLM implementation in ROS2
+
+### LLM implementation in ROS2
 
 In this project, the LLM implemented to classify the operator intent and to ease the communication between the oprator and the robot. The package related to this task is the <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/llm_communicator">llm_communicator</a>. To implement this part of the project we used, we used <a href="https://github.com/ollama/ollama/tree/main
 ">**OLLAMA3.2**</a> model.<br> 
@@ -50,8 +56,11 @@ For the second objective the LLM need to classify the user intent from the list 
 
 <hr>
 
-## Voice Transcriber
+### Voice Transcriber
 
+To communicate efficiently with the robot or more especificly with the LLM model of the robot, a voice transcriber is implemented using the <a href="https://github.com/alphacep/vosk-api
+">**VOSK API**</a>. Therefore in the package <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/voice_command/voice_command
+">**voice_command**</a>, you can find the related code. 
 
 
 
