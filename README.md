@@ -33,10 +33,10 @@ You can find the code related to this module in the package of <a href="https://
 
 
 <hr>
-
 ## LLM implementation in ROS2
 
-In this project, the LLM implemented to classify the operator intent and to ease the communication between the oprator and the robot. The package related to this task is the <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/llm_communicator">llm_communicator</a>. To implement this part of the project we used, we used **OLLAMA3.2** model.<br> 
+In this project, the LLM implemented to classify the operator intent and to ease the communication between the oprator and the robot. The package related to this task is the <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/llm_communicator">llm_communicator</a>. To implement this part of the project we used, we used <a href="https://github.com/ollama/ollama/tree/main
+">**OLLAMA3.2**</a> model.<br> 
 
 This package has two main objectives:
 
@@ -44,5 +44,14 @@ This package has two main objectives:
   <li>Notifing the oprator in the case of any notification is needed to communicate to the oprator, such as adjusting the posture.</li>
   <li>classifying the intended action of the oprator for robot movement.</li>
 </ol>
+
+For the second objective the LLM need to classify the user intent from the list of provided possible intent at the package in the _resource
+/robot_commands.txt_. These intents are considered as the system prompt to the LLM model. 
+
+<hr>
+
+## Voice Transcriber
+
+
 
 
