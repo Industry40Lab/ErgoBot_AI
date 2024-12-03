@@ -16,5 +16,7 @@ This project is the second use case of <a href="https://arise-middleware.eu/">AR
   <li>LLM (Ollama) ROS2 implementation for intent classification</li>
   <li>Voice Transcriber based on (VOSK)</li>
   <li>Active human posture tracker</li>
-  <li>Graphical User Interface to communicate with oprator.</li>
+  <li>Graphical User Interface to communicate with operator</li>
 </ul>
+
+<hr>
