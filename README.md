@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="materials/polimi_logo.png" alt="Image 1" width="200"/>
+  <img src="materials/Screenshot%20from%202024-12-03%2011-00-00.png" alt="Image 2" width="200"/>
+</p>
+
 <h1 style="display: flex; align-items: center; justify-content: space-between;">
     ErgoBot_AI: LLM-Enhanced Human-Robot Interaction for Optimized Ergonomic Posture
 </h1>
