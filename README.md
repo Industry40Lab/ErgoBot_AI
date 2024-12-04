@@ -18,7 +18,7 @@
   <img src="materials/diagram2.png" alt="Overall Diagram"/>
 </p>
 
-This project is the second use case of the <a href="https://arise-middleware.eu/">ARISE</a> project. This work consists of two modules: (i) the ergonomics assessment of an operator using ROS4HRI capable of 3D pose estimation of the human body, and (ii) speech commands to the robot using an LLM. The modules are described below:
+This project is the second use case of the <a href="https://arise-middleware.eu/">ARISE</a> project. This work consists of two main sections: (i) the ergonomics assessment of an operator using ROS4HRI capable of 3D pose estimation of the human body, and (ii) speech commands to the robot using an LLM. The modules are described below:
 
 <ul>
   <li>MoveIt2-based UR5e controller interface</li>
@@ -28,7 +28,7 @@ This project is the second use case of the <a href="https://arise-middleware.eu/
   <li>Graphical User Interface for operator communication</li>
 </ul>
 
-In summary, this work represents the first scale-up of the ARISE project, where the LLM model has been implemented in the ROS2 framework to facilitate human-robot interaction. The operator sends a vocal command to the robot through a microphone. The speech signal is transcribed using the VOSK API. The transcribed command is then forwarded to the Ollama 3.2 model via a ROS2 topic for the identification of the operator’s intention(s). As a result, the identified intention(s) is translated into low-level robot commands for trajectory planning via MoveIt2. 
+In summary, this work represents the first scale-up of the ARISE project, where the LLM model has been implemented in the ROS2 framework to facilitate human-robot interaction. The operator sends a vocal command to the robot through a microphone. The speech signal is transcribed using the VOSK API. The transcribed command is then forwarded to the Ollama 3.2 model via a ROS2 topic for the identification of the operator’s intention(s). As a result, the identified intention(s) are translated into low-level robot commands for trajectory planning via MoveIt2. 
 
 <hr>
 
@@ -108,7 +108,7 @@ Set the VOSK model path in the code, build the package, and then run:
 ros2 run voice_command voice_command_system
 ```
 
-Step 4: Start the MoveIt UR5e controllers
+Step 4: Start the MoveIt Config, and UR5e controllers
 Run these commands one by one:
 
 ```bash
