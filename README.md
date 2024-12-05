@@ -7,11 +7,11 @@
     ErgoBot_AI: LLM-Enhanced Human-Robot Interaction for Optimized Ergonomic Posture
 </h1>
 
-![Static Badge](https://img.shields.io/badge/Ubuntu-24.04-orange)
-![Static Badge](https://img.shields.io/badge/Python-3.10-blue)
-![Static Badge](https://img.shields.io/badge/ROS2-iron-blue)
-![Static Badge](https://img.shields.io/badge/ROS2-humble-blue)
-![Static Badge](https://img.shields.io/badge/ROS2-Jazzy-blue)
+<a href="https://ubuntu.com/blog/tag/ubuntu-24-04-lts">![Static Badge](https://img.shields.io/badge/Ubuntu-24.04-orange)</a>
+<a href="https://www.python.org/downloads/release/python-3100/">![Static Badge](https://img.shields.io/badge/Python-3.10-blue)</a>
+<a href="https://docs.ros.org/en/iron/index.html">![Static Badge](https://img.shields.io/badge/ROS2-iron-blue)</a>
+<a href="https://docs.ros.org/en/humble/index.html">![Static Badge](https://img.shields.io/badge/ROS2-humble-blue)</a>
+<a href="https://docs.ros.org/en/rolling/Releases/Release-Jazzy-Jalisco.html">![Static Badge](https://img.shields.io/badge/ROS2-Jazzy-blue)</a>
 
 ## Description:
 
