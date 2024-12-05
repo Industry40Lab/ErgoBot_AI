@@ -11,6 +11,7 @@
 ![Static Badge](https://img.shields.io/badge/Python-3.10-blue)
 ![Static Badge](https://img.shields.io/badge/ROS2-iron-blue)
 ![Static Badge](https://img.shields.io/badge/ROS2-humble-blue)
+![Static Badge](https://img.shields.io/badge/ROS2-Jazzy-blue)
 
 ## Description:
 
