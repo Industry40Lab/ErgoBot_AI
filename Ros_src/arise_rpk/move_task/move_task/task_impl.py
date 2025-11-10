@@ -1,0 +1,233 @@
+# Copyright (c) 2025 TODO. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import time
+
+from rclpy.action import ActionServer, GoalResponse
+from rclpy.action import ActionClient
+from rclpy.lifecycle import Node
+from rclpy.lifecycle import State
+from rclpy.lifecycle import TransitionCallbackReturn
+
+# custom action for this task. This has been generated
+# by rpk alongside this node.
+from move_task_msgs.action import Move
+from std_msgs.msg import String
+
+# action for the system skill 'say'
+from sample_skill_msgs.action import SkillControl
+
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+
+class TaskImpl(Node):
+    """
+    Implementation of task move_task.
+
+    This is the main class for the task. It is a ROS2 node that uses the
+    lifecycle feature of ROS2 to manage its states.
+
+    Don't forget to update accordingly the manifest of the task, included in
+    package.xml, to describe what your task is actually doing.
+    """
+
+    def __init__(self) -> None:
+        """Construct the node."""
+        super().__init__('task_movement_task')
+
+        self.get_logger().info("Initialising...")
+        self._timer = None
+        self._diag_pub = None
+        self._movement_pub = None
+        self._diag_timer = None
+
+        #######################################
+        #
+        # TODO: Add here any other variables
+        # that you need in your node
+        # Initialisation should happen in the
+        # on_configure state.
+        #
+
+        self.task_server = None
+
+        self.say_client = None
+
+        self._get_result_future = None
+
+        self.get_logger().info('Task move_task started, but not yet configured.')
+
+    def on_request_goal(self, goal_handle):
+        """Accept incoming goal if appropriate."""
+        # the rejection condition putted in here.
+        # if goal_handle.request.person_id == 'robot':    
+        #     return GoalResponse.REJECT
+
+        self.get_logger().info("Accepted a new goal")
+        return GoalResponse.ACCEPT
+
+    def on_request_exec(self, goal_handle):
+        """Process incoming goal."""
+        self.direction = goal_handle.request.direction
+        self.amount = goal_handle.request.amount
+
+        data = "{0},{1}".format(self.direction, 10 if self.amount is None else str(self.amount))
+
+        msg = String()
+        msg.data = data
+        self._movement_pub.publish(msg)
+        self.get_logger().warning(f'The movement order <{data}> published.')
+
+
+        self.get_logger().info("Starting the movment sending task")
+
+
+        feedback_msg = Move.Feedback()
+        feedback_msg.status = "sending the movment order to trajectory planner."
+
+        goal_handle.publish_feedback(feedback_msg)
+
+        goal_handle.succeed()
+
+        return Move.Result()
+
+    def move_goal_callback(self, future):
+
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info("Failed to move the robot.")
+            return
+
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.move_result_callback)
+
+    def move_result_callback(self, future):
+
+        self._get_result_future = None
+
+        result = future.result().result
+
+        # if not result.error_msg:
+        self.get_logger().info("Movment information sent successful")
+
+    #################################
+    #
+    # Lifecycle transitions callbacks
+    #
+    def on_configure(self, state: State) -> TransitionCallbackReturn:
+        """
+        Configure the skill.
+
+        You usually want to do the following in this state:
+        - Read ROS parameters (if any)
+        - Create ROS action clients and servers
+        - Create ROS publishers and subscribers
+        - Start publishing diagnostic information
+
+        While the skill is configured, but not activated, it should not
+        perform any actions that are not required for configuration, such as
+        effectively processing data or calling external services.
+        For instance, incoming goals on an action server should be rejected.
+
+        :return: The state machine either invokes a transition to the
+            "inactive" state or stays in "unconfigured" depending on the
+            return value.
+            TransitionCallbackReturn.SUCCESS transitions to "inactive".
+            TransitionCallbackReturn.FAILURE transitions to "unconfigured".
+            TransitionCallbackReturn.ERROR or any uncaught exceptions to
+            "errorprocessing"
+        """
+        # configure and start diagnostics publishing
+        self._diag_pub = self.create_publisher(DiagnosticArray, '/diagnostics', 1)
+        self._diag_timer = self.create_timer(1., self.publish_diagnostics)
+        self._movement_pub = self.create_publisher(String, 'movement_order_rpk', 10)
+
+        # example API for our 'move' task
+        self.task_server = ActionServer(
+            self, Move, "/move",
+            goal_callback=self.on_request_goal,
+            execute_callback=self.on_request_exec)
+
+        # create an action client for the 'say' skill
+        # self.say_client = ActionClient(self, SkillControl, "/say")
+        # while not self.say_client.wait_for_server(timeout_sec=1.0):
+        #     self.get_logger().info("'/say' skill not yet available, waiting again...")
+
+        self.get_logger().info("Task movement_task is configured, but not yet active")
+        return TransitionCallbackReturn.SUCCESS
+
+    def on_activate(self, state: State) -> TransitionCallbackReturn:
+        """
+        Activate the skill.
+
+        You usually want to do the following in this state:
+        - Create and start any timers performing periodic tasks
+        - Start processing data, and accepting action goals, if any
+
+        """
+        # Define a timer that fires every second to call the run function
+        timer_period = 1  # in sec
+        self._timer = self.create_timer(timer_period, self.run)
+
+        self.get_logger().info("Task movement_task is active and running")
+        return super().on_activate(state)
+
+    def on_deactivate(self, state: State) -> TransitionCallbackReturn:
+        """Stop the timer to stop calling the `run` function (main task of your application)."""
+        self.get_logger().info("Stopping task...")
+        self.destroy_timer(self._timer)
+
+        self.get_logger().info("Task movement_task is stopped (inactive)")
+        return super().on_deactivate(state)
+
+    def on_shutdown(self, state: State) -> TransitionCallbackReturn:
+        """
+        Shutdown the node, after a shutting-down transition is requested.
+
+        :return: The state machine either invokes a transition to the
+            "finalized" state or stays in the current state depending on the
+            return value.
+            TransitionCallbackReturn.SUCCESS transitions to "finalized".
+            TransitionCallbackReturn.FAILURE remains in current state.
+            TransitionCallbackReturn.ERROR or any uncaught exceptions to
+            "errorprocessing"
+        """
+        self.get_logger().info('Shutting down task movement_task.')
+        self.destroy_timer(self._diag_timer)
+        self.destroy_publisher(self._diag_pub)
+
+        self.destroy_timer(self._timer)
+
+        self.get_logger().info("Task movement_task finalized.")
+        return TransitionCallbackReturn.SUCCESS
+
+    #################################
+
+    def publish_diagnostics(self):
+
+        arr = DiagnosticArray()
+        msg = DiagnosticStatus(
+            level=DiagnosticStatus.OK,
+            name="/tasks/task_movement_task",
+            message="task movement_task is running",
+            values=[
+                KeyValue(key="Module name", value="movement_task"),
+            ],
+        )
+
+        arr.header.stamp = self.get_clock().now().to_msg()
+        arr.status = [msg]
+        self._diag_pub.publish(arr)
+
+    def run(self) -> None:
+        pass

@@ -1,0 +1,15 @@
+# sample action message for the 'Notif' task. This is purely
+# for illustration purpose! You would probably not implement
+# a 'Notif' task using this message.
+
+# define some status constants, used for feedback
+uint8 INACTIVE = 0
+uint8 ACTION_NOTIF = 1
+uint8 DANGER_NOTIF = 2
+
+# optional custom greeting message
+string custom_notif
+---
+string error_msg
+---
+string status

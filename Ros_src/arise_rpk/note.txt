@@ -1,0 +1,11 @@
+ros2 topic pub -1 /humans/voices/tracked hri_msgs/msg/IdsList "ids: ['shayan']"
+ros2 topic pub -1 /humans/voices/shayan/speech hri_msgs/msg/LiveSpeech "final: 'move the robot to kitchen'"
+ros2 topic pub -1 /humans/voices/tracked hri_msgs/msg/IdsList "ids: ['system_controller']"
+ros2 topic pub -1 /humans/voices/system_controller/speech hri_msgs/msg/LiveSpeech "final: 'Just repeate this sentence and say it to user that: Your working posture need adjustment and can risk your long-term health. '"
+test controler: /humans/voices/user/speech
+
+
+ros2 topic pub -1 /humans/voices/tracked hri_msgs/msg/IdsList "ids: ['user']"
+ros2 topic pub -1 /humans/voices/user/speech hri_msgs/msg/LiveSpeech "final: 'move robot up.'"
+
+ros2 topic pub -1 /movement_order_rpk std_msgs/msg/String "data: 'UP,10'"

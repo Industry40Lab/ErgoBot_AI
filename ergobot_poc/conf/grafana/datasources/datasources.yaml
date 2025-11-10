@@ -1,0 +1,36 @@
+apiVersion: 1
+
+datasources:
+  - name: orion
+    type: grafana-postgresql-datasource
+    url: timescale:5432
+    user: orion
+    secureJsonData:
+      password: ''
+    jsonData:
+      database: orion
+      sslmode: 'disable'
+      
+  - name: orion_cartif
+    type: grafana-postgresql-datasource
+    url: timescale:5432
+    user: orion
+    secureJsonData:
+      password: ''
+    jsonData:
+      database: orion_cartif
+      sslmode: 'disable'    
+  
+  - id: 3
+    uid: "aee7znssxxvr4c"
+    orgId: 1
+    name: "yesoreyeram-infinity-datasource"
+    type: "yesoreyeram-infinity-datasource"
+    url: ""
+    basicAuth: false
+    basicAuthUser: ""
+    isDefault: false
+    jsonData:
+      global_queries: []
+    readOnly: false
+    apiVersion: ""    

@@ -1,0 +1,462 @@
+# Copyright (c) 2025 TODO. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import yaml
+import requests
+import json
+from string import Template
+from functools import partial
+
+from rclpy.lifecycle import Node
+from rclpy.lifecycle import State
+from rclpy.lifecycle import TransitionCallbackReturn
+from rcl_interfaces.msg import ParameterDescriptor
+from rclpy.action import ActionServer, GoalResponse
+from hri_actions_msgs.msg import Intent
+from i18n_msgs.action import SetLocale
+from i18n_msgs.srv import GetLocales
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+from hri import HRIListener
+
+
+class LLMChatbot(Node):
+    """
+    Implementation of llm_bridge.
+
+    This is the main class for the node. It is a ROS2  node that uses the
+    lifecycle feature of ROS 2 to manage its states.
+
+    The purpose of this node is to recognise *user intents* using a LLM.
+    It relies on the OpenAI REST API to interface with a LLM: you can use
+    a local server like `ollama` for edge computation, or a cloud-based service
+    like ChatGPT (ie OpenAI API).
+
+    Use the parameters `server_url` and `model` to configure the LLM server.
+    """
+
+    def __init__(self) -> None:
+        """Construct the node."""
+        super().__init__('intent_extractor_llm_bridge')
+
+        # Declare ROS parameters. Should mimick the one listed in config/00-defaults.yaml
+        self.declare_parameter(
+            'server_url', "http://localhost:11434",
+            ParameterDescriptor(description='URL of the OpenAI-compatible LLM server')
+        )
+        self.declare_parameter(
+            'model', "llama3.2",
+            ParameterDescriptor(description='LLM model to use')
+        )
+        self.declare_parameter(
+            'api_key', "",
+            ParameterDescriptor(description='API key to use for the LLM server, if any.')
+        )
+        self.declare_parameter(
+            'system_prompt', "You are a helpful interactive robot.",
+            ParameterDescriptor(description='System prompt to use for the LLM')
+        )
+
+        self.get_logger().info("Initialising...")
+
+        self._hri_listener = None
+        self._intent_pub = None
+        self._get_supported_locales_server = None
+        self._set_default_locale_server = None
+
+        self._timer = None
+        self._diag_pub = None
+        self._diag_timer = None
+
+        self._llm_server = None
+        self._llm_model = None
+        self._api_key = None
+        self._system_prompt_msg = None
+
+        self._nb_requests = 0
+        self._msgs_history = []
+
+        self.get_logger().info('Chatbot llm_bridge started, but not yet configured.')
+
+    def perform_request(self, server, model, messages, api_key=None):
+        headers = {
+                   'Content-Type': 'application/json',
+                  }
+
+        if api_key:
+            headers['Authorization'] = f"Bearer {api_key}"
+
+        url = f"{server}/v1/chat/completions"
+
+        json_data = json.dumps({
+            "model": model,
+            "messages": messages,
+        })
+
+        try:
+            self.get_logger().info("Sending request to LLM and waiting for response...")
+            response = requests.post(url, headers=headers, data=json_data)
+            response.raise_for_status()
+            return response.json()['choices'][0]
+        except requests.exceptions.RequestException as e:
+            try:
+                error_msg = response.json()['error']['message']
+            except (ValueError, KeyError):
+                error_msg = "Unable to decode error message from server"
+            self.get_logger().error(f"Error while sending request to {url}:\n{e}\n{error_msg}\n"
+                                    "Is the server running, or the URL incorrect "
+                                    f"(eg wrong port)? I was trying to connect to: {url}")
+            return None
+
+    def preprocess_llm_response(self, raw_text):
+
+        # extract the substring between the first
+        # opening and closing curly braces (accounting for nested braces).
+        start_idx = 0
+        end_idx = len(raw_text) - 1
+        nested = 0
+        for i, c in enumerate(raw_text):
+            if c == '{':
+                start_idx = i
+                break
+        for i in range(start_idx, len(raw_text)):
+            if raw_text[i] == '{':
+                nested += 1
+            elif raw_text[i] == '}':
+                nested -= 1
+                if nested == 0:
+                    end_idx = i
+                    break
+
+        text = raw_text[start_idx:end_idx+1]
+
+        # the LLM tends to remove spaces before colons, which cause
+        # invalid YAML parsing.
+        text = text.replace(":", ": ")
+
+        return text
+
+    def escape_json(self, text):
+        """Escape all json special characters that might appear in the text."""
+        return text.replace('"', '\\"').replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
+
+    def on_user_input(self, input, user_id):
+
+        # Implement here the logic to process the natural text input
+        #
+        # You might want to:
+        # - recognize and return the user intent (if any), and map it to the
+        #   Intent.msg semantics.
+        # - return a suggested response to the user (if any) - return a result
+        #   (if the dialogue has exhausted its role), which would close the
+        #   dialogue
+        #
+        # For now, we just try to recognize a greeting, and close the dialogue
+        # if requested
+        suggested_response = ""
+        intent = None
+        suggest_intent = None
+        self.get_logger().info(f"input from {user_id}: {input}")
+        self._nb_requests += 1
+
+        if not user_id:
+            user_id = "anonymous_user"
+
+        if not self._msgs_history:
+            self._msgs_history = [self._system_prompt_msg]
+        self._msgs_history.append(
+            {
+                'role': 'user',
+                'content': f'{user_id} "{input}"',
+            }
+        )
+
+        llm_response = self.perform_request(
+            server=self._llm_server,
+            model=self._llm_model,
+            messages=self._msgs_history,
+            api_key=self._api_key
+        )
+        if not llm_response:
+            return
+
+        # clean-up the raw LLM answer
+        content = self.preprocess_llm_response(llm_response['message']['content'])
+        llm_response['message']['content'] = content
+
+        self._msgs_history.append(llm_response['message'])
+
+        raw_response = llm_response['message']['content']
+
+        self.get_logger().info(f"LLM response: {raw_response}")
+
+        # here, we need to retrieve the user intent, and map it to the
+        # Intent.msg semantics.
+        valid = True
+        response = {}
+        try:
+            # use YAML instead of JSON to parse the LLM response, as
+            # YAML is more permissive and can handle JSON as well.
+            response = yaml.safe_load(raw_response)
+        except yaml.parser.ParserError as e:
+            self.get_logger().error(f"Error while decoding LLM response: {e}. "
+                                    "Not valid YAML/JSON. Falling back to raw response.")
+            self.get_logger().error(f"The Raw response was: {raw_response}. ")            
+            valid = False
+
+        if not isinstance(response, dict):
+            self.get_logger().error("Error while decoding LLM response: "
+                                    "response is not a dictionary. Falling back to raw response.")
+            valid = False
+
+        intent = response.get("next_action", {})
+        suggested_response = response.get("suggested_response_to_user", "")
+        self.get_logger().warn("The suggested response is : {0}".format(suggested_response))
+        type = ""
+        if intent:
+            type = intent.get("type", None).upper()
+            if not type:
+                self.get_logger().warn("Error while decoding LLM response: 'next_action' "
+                                       "is not specified. Falling back to raw response.")
+                valid = False
+
+        else:
+            if suggested_response:
+                self.get_logger().warn("LLM did not provide any 'next_action'. "
+                                       "Assuming a pure 'SAY' action.")
+                type = "SAY"
+                valid = True
+            else:
+                self.get_logger().warn("Error while decoding LLM response: no 'next_action' "
+                                       "or 'suggested_response_to_user' fields. Falling "
+                                       "back to raw response.")
+                valid = False
+
+        if valid:
+
+            if type == "SAY":
+                self.get_logger().warn("I think the user want to say/answer something. "
+                                       "Sending a SAY intent")
+                intent = Intent(intent=Intent.SAY,
+                                source=user_id,
+                                modality=Intent.MODALITY_SPEECH,
+                                confidence=.8,
+                                data=json.dumps({"object": suggested_response}))
+
+
+            elif type == "GO_TO" or type == '__intent_move_to__':
+                self.get_logger().warn("I think the user want to move the robot. "
+                                       "Sending a GO_TO intent")
+                direction = intent.get("direction", None).upper()
+                amount =  intent.get("amount", None)
+                data = {"object": intent.get("object", "unknown"),
+                        "suggested_response": suggested_response,
+                        "amount": amount,
+                        "direction": direction}
+                intent = Intent(intent=Intent.MOVE_TO,
+                                source=user_id,
+                                modality=Intent.MODALITY_SPEECH,
+                                confidence=.8,
+                                data=json.dumps(data))
+                
+                self.get_logger().warn("The GO_TO intent created: {0}".format(intent))
+                if suggested_response: 
+                    self.get_logger().warn("I think the user want to say/answer something. "
+                                           "Sending a SAY intent")
+                    suggest_intent = Intent(intent=Intent.SAY,
+                                    source=user_id,
+                                    modality=Intent.MODALITY_SPEECH,
+                                    confidence=.8,
+                                    data=json.dumps({"object": suggested_response}))
+
+            else:
+                self.get_logger().warn(f"Intent '{type}' not handled. "
+                                       "Forwarding a 'RAW_USER_INPUT' instead.")
+                intent = Intent(intent=Intent.RAW_USER_INPUT,
+                                source=user_id,
+                                modality=Intent.MODALITY_SPEECH,
+                                confidence=1.0,
+                                data='{ {"input": "' + input + '", ' + '"suggested_response": "' +
+                                     self.escape_json(raw_response) + '"} }')
+
+        else:
+            self.get_logger().warn("Unable to process user input. Forwarding a 'RAW_USER_INPUT'")
+            intent = Intent(intent=Intent.RAW_USER_INPUT,
+                            source=user_id,
+                            modality=Intent.MODALITY_SPEECH,
+                            confidence=1.0,
+                            data='{ {"input": "' + input + '", ' + '"suggested_response": "' +
+                                 self.escape_json(raw_response) + '"} }')
+
+        self._intent_pub.publish(intent)
+        if not suggest_intent is None:
+            self._intent_pub.publish(suggest_intent)
+
+    def make_action_list(self) -> str:
+        # List all the actions available to the robot, with their corresponding
+        # intents.
+        #
+        # Here, we just hard-code a few examples.
+
+        return """
+        - SAY: generic action to tell something to the user.
+        - GO_TO: move with a specific direction, and specific amount in centimeter. Parameters: direction, amount.
+        
+        """
+
+    def get_environment_description(self) -> str:
+        # Describe the environment in which the robot is operating.
+        #
+        # Here, we just hard-code a few examples.
+
+        return """
+        - direction: can be only one of the following (up, down, backward, forward, right, left).
+        - amount: can be only a single value in a numerical format. just the number which represent the amount of movment in centimeter change nothing else, the defualt value is 5 in case it is not defined.
+        """
+
+    def on_get_supported_locales(self, request, response):
+        response.locales = []  # the LLM can handle any
+        return response
+
+    def on_set_default_locale_goal(self, goal_request):
+        return GoalResponse.ACCEPT
+
+    def on_set_default_locale_exec(self, goal_handle):
+        """Nothing to do here. Always mark as succeeded."""
+        result = SetLocale.Result()
+        goal_handle.succeed()
+        return result
+
+    #################################
+    #
+    # Lifecycle transitions callbacks
+    #
+    def on_configure(self, state: State) -> TransitionCallbackReturn:
+
+        self._llm_server = self.get_parameter('server_url').value
+        self._llm_model = self.get_parameter('model').value
+        self._api_key = self.get_parameter_or('api_key', None).value
+        system_prompt = self.get_parameter('system_prompt').value
+
+        tpl = Template(system_prompt)
+        rendered_system_prompt = tpl.safe_substitute(
+                                                action_list=self.make_action_list(),
+                                                environment=self.get_environment_description())
+        self._system_prompt_msg = {'role': 'system', 'content': rendered_system_prompt}
+
+        self.get_logger().info(f"I will connect to the LLM server on {self._llm_server}.")
+
+        self._intent_pub = self.create_publisher(Intent, '/intents', 1)
+        # configure and start diagnostics publishing
+        self._nb_requests = 0
+        self._diag_pub = self.create_publisher(DiagnosticArray, '/diagnostics', 1)
+        self._diag_timer = self.create_timer(1., self.publish_diagnostics)
+
+        # start advertising supported locales
+        self._get_supported_locales_server = self.create_service(
+            GetLocales, "~/get_supported_locales", self.on_get_supported_locales)
+
+        self._set_default_locale_server = ActionServer(
+            self, SetLocale, "~/set_default_locale",
+            goal_callback=self.on_set_default_locale_goal,
+            execute_callback=self.on_set_default_locale_exec)
+
+        self.get_logger().info("Chatbot llm_bridge is configured, but not yet active")
+        return TransitionCallbackReturn.SUCCESS
+
+    def on_activate(self, state: State) -> TransitionCallbackReturn:
+        """
+        Activate the node.
+
+        You usually want to do the following in this state:
+        - Create and start any timers performing periodic tasks
+        - Start processing data, and accepting action goals, if any
+
+        """
+        self._hri_listener = HRIListener("__internal_llm_bridge_hri__")
+        self._hri_listener.on_voice(lambda voice:
+                                    voice.on_speech(partial(self.on_user_input, user_id=voice.id))
+                                    )
+
+        # Define a timer that fires every second to call the run function
+        timer_period = 1  # in sec
+        self._timer = self.create_timer(timer_period, self.run)
+
+        self.get_logger().info("Chatbot llm_bridge is active and running")
+        return super().on_activate(state)
+
+    def on_deactivate(self, state: State) -> TransitionCallbackReturn:
+        """Stop the timer to stop calling the `run` function (main task of your application)."""
+        self.get_logger().info("Stopping chatbot...")
+
+        self.destroy_timer(self._timer)
+        self._hri_listener = None
+        self.destroy_publisher(self._intent_pub)
+
+        self.get_logger().info("Chatbot llm_bridge is stopped (inactive)")
+        return super().on_deactivate(state)
+
+    def on_shutdown(self, state: State) -> TransitionCallbackReturn:
+        """
+        Shutdown the node, after a shutting-down transition is requested.
+
+        :return: The state machine either invokes a transition to the
+            "finalized" state or stays in the current state depending on the
+            return value.
+            TransitionCallbackReturn.SUCCESS transitions to "finalized".
+            TransitionCallbackReturn.FAILURE remains in current state.
+            TransitionCallbackReturn.ERROR or any uncaught exceptions to
+            "errorprocessing"
+        """
+        self.get_logger().info('Shutting down llm_bridge node.')
+        self.destroy_timer(self._diag_timer)
+        self.destroy_publisher(self._diag_pub)
+
+        self.destroy_service(self._get_supported_locales_server)
+        self._set_default_locale_server.destroy()
+
+        self.get_logger().info("Chatbot llm_bridge finalized.")
+        return TransitionCallbackReturn.SUCCESS
+
+    #################################
+
+    def publish_diagnostics(self):
+
+        arr = DiagnosticArray()
+        msg = DiagnosticStatus(
+            level=DiagnosticStatus.OK,
+            name="/intent_extractor_llm_bridge",
+            message="chatbot llm_bridge is running",
+            values=[
+                KeyValue(key="Module name", value="llm_bridge"),
+                KeyValue(key="Current lifecycle state",
+                         value=self._state_machine.current_state[1]),
+                KeyValue(key="llm server", value=self._llm_server),
+                KeyValue(key="llm model", value=self._llm_model),
+                KeyValue(key="# requests since start", value=str(self._nb_requests)),
+            ],
+        )
+
+        arr.header.stamp = self.get_clock().now().to_msg()
+        arr.status = [msg]
+        self._diag_pub.publish(arr)
+
+    def run(self) -> None:
+        """
+        Background task of the chatbot.
+
+        For now, we do not need to do anything here, as the chatbot is
+        event-driven, and the `on_user_input` callback is called when a new
+        user input is received.
+        """
+        pass

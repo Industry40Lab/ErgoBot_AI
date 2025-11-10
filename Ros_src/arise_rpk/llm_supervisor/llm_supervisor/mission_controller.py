@@ -1,0 +1,194 @@
+# Copyright (c) 2025 TODO. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import json
+
+from move_task_msgs.action import Move
+from hri_actions_msgs.msg import Intent
+from rclpy.action import ActionClient
+from rclpy.lifecycle import Node
+from rclpy.lifecycle import State
+from rclpy.lifecycle import TransitionCallbackReturn
+from sample_skill_msgs.action import SkillControl
+
+
+class MissionController(Node):
+
+    def __init__(self) -> None:
+        """Construct the node."""
+        super().__init__('mission_llm_supervisor')
+
+        self.get_logger().info("Initialising...")
+
+        self._hri_listener = None
+        self._intents_sub = None
+        self._timer = None
+
+        self._intent_sub = None
+
+        # in this example, the mission controller can either
+        # or directly call the 'say' skill (in response to eg the 'SAY' intent)
+        self._move_task_client = None
+        self._say_skill_client = None
+
+        self.get_logger().info('Node initialised. Ready to transition to configure.')
+
+    def on_intent(self, msg):
+
+        self.get_logger().info("Received an intent: %s" % msg.intent)
+        
+
+        try:
+            data = json.loads(msg.data) if msg.data else {}
+            self.get_logger().warning("The Intent data: {0}".format(data))
+        
+        except json.JSONDecodeError:
+            self.get_logger().warn("The intent's data field is not a"
+                                   f" valid json object:\n{msg.data}")
+            data = {"raw": msg.data}
+        
+
+        
+        source = msg.source
+        modality = msg.modality  # noqa: F841
+        confidence = msg.confidence  # noqa: F841
+        priority_hint = msg.priority  # noqa: F841
+
+        if msg.intent == Intent.MOVE_TO:
+            self.get_logger().info(f"Move order data {data}")
+            # direction {data['direction']}, amount {data['amount']}
+            goal = Move.Goal()
+            goal.direction = data['direction']
+            if isinstance(data['amount'], int):
+                goal.amount = data['amount']
+            else:
+                goal.amount = int(data['amount'])
+
+            self._move_task_future = self._move_task_client.send_goal_async(
+                                           goal,
+                                           feedback_callback=self.on_feedback)
+
+            self._move_task_future.add_done_callback(self.on_move_goal)
+        elif msg.intent == Intent.SAY:
+            self.get_logger().info(f"Saying something to <{source}>")
+            goal = SkillControl.Goal()
+            goal.skill_data = data["object"]
+            self._say_skill_future = self._say_skill_client.send_goal_async(
+                                           goal,
+                                           feedback_callback=self.on_feedback)
+
+            self._say_skill_future.add_done_callback(self.on_say_goal)
+
+        else:
+            self.get_logger().warn("I don't know yet how to process intent "
+                                   "<%s>" % msg.intent)
+
+    def on_feedback(self, msg):
+        self.get_logger().info("Received feedback: %s" % msg.feedback)
+
+    def on_move_goal(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Failed to move the user. Goal rejected')
+            return
+
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.on_move_done)
+
+    def on_move_done(self, future):
+        result = future.result().result
+        if result.error_msg:
+            self.get_logger().error(f"Failed to move: {result.error_msg}")
+        else:
+            self.get_logger().info("Successfully robot moved")
+
+    def on_say_goal(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Failed to say something. Goal rejected')
+            return
+
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.on_say_done)
+
+    def on_say_done(self, future):
+        result = future.result().result
+        # if result:
+        #     self.get_logger().error(f"Say skill returned: {result.result}")
+        # else:
+        self.get_logger().info("Successfully said something")
+
+    #########################################################################
+
+    #################################
+    #
+    # Lifecycle transitions callbacks
+    #
+    #################################
+
+    def on_configure(self, state: State) -> TransitionCallbackReturn:
+        """Configure the node."""
+        self._move_task_client = ActionClient(self, Move, '/move')
+        while not self._move_task_client.wait_for_server(timeout_sec=1.0):
+            self.get_logger().info("'move' task not yet available, waiting again...")
+
+        self._say_skill_client = ActionClient(self, SkillControl, '/say')
+        while not self._say_skill_client.wait_for_server(timeout_sec=1.0):
+            self.get_logger().info("'say' skill skill not yet available, waiting again...")
+
+        self.get_logger().info('Node configured. Ready to transition to activate.')
+        return TransitionCallbackReturn.SUCCESS
+
+    def on_activate(self, state: State) -> TransitionCallbackReturn:
+        """Activate the node."""
+        self._intents_sub = self.create_subscription(
+            Intent,
+            '/intents',
+            self.on_intent,
+            10)
+
+        self.get_logger().info("Listening to incoming intents on the %s topic" %
+                               self._intents_sub.topic_name)
+
+        timer_period = 0.1  # in sec
+        self._timer = self.create_timer(timer_period, self.run)
+
+        self.get_logger().info('Node activated and running.')
+        return super().on_activate(state)
+
+    def on_deactivate(self, state: State) -> TransitionCallbackReturn:
+        """Stop the timer to stop calling the `run` function (main task of your application)."""
+        self.get_logger().info("Stopping application")
+
+        self.destroy_timer(self._timer)
+        self.destroy_subscription(self._intents_sub)
+        self._hri_listener = None
+
+        self.get_logger().info('Node de-activated.')
+        return super().on_deactivate(state)
+
+    def on_shutdown(self, state: State) -> TransitionCallbackReturn:
+        """Shutdown the node, after a shutting-down transition is requested."""
+        self._move_task_client.destroy()
+        self._say_skill_client.destroy()
+
+        self.destroy_timer(self._timer)
+        self.destroy_subscription(self._intents_sub)
+
+        self.get_logger().info('Shutting down node.')
+        return TransitionCallbackReturn.SUCCESS
+
+    def run(self) -> None:
+        """Background task of your application."""
+        pass

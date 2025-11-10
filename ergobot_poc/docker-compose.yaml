@@ -1,0 +1,146 @@
+services:
+  mongodb:
+    image: mongo:4.4 #latest
+    hostname: mongodb
+    networks:
+      - hostnet
+    ports:
+      - "27017:27017"
+    command: --bind_ip_all 
+    volumes:
+      - mongodb:/data
+
+  orion:
+    image: fiware/orion-ld:1.8.0
+    hostname: orion
+    privileged: true
+    ipc: host
+    depends_on:
+      - mongodb
+    networks:
+      - hostnet
+    ports:
+      - "1026:1026"
+    restart: always
+    command: -dbhost mongodb -logLevel DEBUG -wip dds -mongocOnly # -forwarding -experimental
+    environment:
+      - ORIONLD_TROE=TRUE
+      - ORIONLD_TROE_HOST=timescale
+      - ORIONLD_TROE_PORT=5432
+      - ORIONLD_TROE_USER=orion
+      - ORIONLD_TROE_PWD=orion
+      - ORIONLD_MONGO_HOST=mongodb
+    volumes:
+       - ./conf/orionld/config-dds.json:/root/.orionld
+    healthcheck:
+      test: curl --fail -s http://orion:1026/version || exit 1
+      interval: 30s
+      retries: 15
+
+  ros2:
+    image: ros2
+    hostname: ros2
+    container_name: ros2
+    privileged: true
+    ipc: host
+    build: ./build/ros2
+    networks:
+      - hostnet
+    environment:
+      DISPLAY: "$DISPLAY"
+    volumes:
+       - /tmp/.X11-unix:/tmp/.X11-unix
+
+  timescale:
+    image: timescale/timescaledb-ha:pg17-ts2.18
+    hostname: timescale
+    networks:
+      - hostnet
+    ports:
+      - "5432:5432"  
+    environment:
+      - POSTGRES_USER=orion
+      - POSTGRES_PASSWORD=orion
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    command: ["postgres", "-c", "log_statement=all"]
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U orion" ]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+
+  
+  mintaka_ros2:
+    image: fiware/mintaka:0.6.18
+    hostname: mintaka_ros2
+    restart: always
+    networks:
+      - hostnet 
+    ports:
+      - "8080:8080"
+    environment:
+      - MICRONAUT_SERVER_PORT=8080
+      - MICRONAUT_METRICS_ENABLED=true
+      - ENDPOINTS_ALL_PORT=8080
+      - ENDPOINTS_METRICS_ENABLED=true
+      - ENDPOINTS_HEALTH_ENABLED=true
+      - DATASOURCES_DEFAULT_HOST=timescale
+      - DATASOURCES_DEFAULT_PORT=5432
+      - DATASOURCES_DEFAULT_USERNAME=orion
+      - DATASOURCES_DEFAULT_PASSWORD=orion
+      - DATASOURCES_DEFAULT_DATABASE=orion
+      - LOGGERS_LEVEL_ROOT=TRACE
+  
+  mintaka_opcua:
+    image: fiware/mintaka:0.6.18
+    hostname: mintaka_opcua
+    restart: always
+    networks:
+      - hostnet 
+    ports:
+      - "8081:8081"
+    environment:
+      - MICRONAUT_SERVER_PORT=8081
+      - MICRONAUT_METRICS_ENABLED=true
+      - ENDPOINTS_ALL_PORT=8081
+      - ENDPOINTS_METRICS_ENABLED=true
+      - ENDPOINTS_HEALTH_ENABLED=true
+      - DATASOURCES_DEFAULT_HOST=timescale
+      - DATASOURCES_DEFAULT_PORT=5432
+      - DATASOURCES_DEFAULT_USERNAME=orion
+      - DATASOURCES_DEFAULT_PASSWORD=orion
+      - DATASOURCES_DEFAULT_DATABASE=orion_cartif
+      - LOGGERS_LEVEL_ROOT=TRACE    
+ 
+  grafana:
+    image: grafana/grafana:latest
+    hostname: grafana
+    networks:
+      - hostnet
+    ports:
+      - 443:3000
+    depends_on:
+      - mintaka_ros2  
+      - mintaka_opcua
+    environment:
+      - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
+      - GF_SERVER_PROTOCOL=https
+      - GF_SERVER_HTTP_PORT=3000
+      - GF_SERVER_CERT_FILE=/etc/grafana/certs/grafana.crt
+      - GF_SERVER_CERT_KEY=/etc/grafana/certs/grafana.key
+    volumes:
+      - ./conf/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./conf/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./conf/grafana/alerting:/etc/grafana/provisioning/alerting
+      - ./conf/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./conf/grafana/certificates:/etc/grafana/certs 
+    restart: always
+  
+
+volumes:
+  mongodb: ~
+
+networks:
+  hostnet:
+    driver: bridge

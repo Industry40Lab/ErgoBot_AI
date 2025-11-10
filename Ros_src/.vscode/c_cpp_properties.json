@@ -1,0 +1,35 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/shayan/ros_projects/arise_usecase_complete/ergobot_ws/install/sample_skill_msgs/include/**",
+        "/home/shayan/ros_projects/arise_usecase_complete/ergobot_ws/install/robot_interface/include/**",
+        "/home/shayan/ros_projects/arise_usecase_complete/ergobot_ws/install/notif_task_msgs/include/**",
+        "/home/shayan/ros_projects/arise_usecase_complete/ergobot_ws/install/move_task_msgs/include/**",
+        "/home/shayan/ros_projects/arise_usecase_complete/ergobot_ws/install/hri_actions_msgs/include/**",
+        "/home/shayan/ros_projects/ur_controller/install/robot_interface/include/**",
+        "/home/shayan/ros_projects/arise_rpk/install/sample_skill_msgs/include/**",
+        "/home/shayan/ros_projects/arise_rpk/install/notif_task_msgs/include/**",
+        "/home/shayan/ros_projects/arise_rpk/install/move_task_msgs/include/**",
+        "/home/shayan/ros_projects/arise_rpk/install/greet_task_msgs/include/**",
+        "/home/shayan/ros_projects/rpk_test_ws/install/i18n_msgs/include/**",
+        "/home/shayan/ros_projects/rpk_test_ws/install/hri/include/**",
+        "/home/shayan/ros_projects/pal_msgs/install/hri_actions_msgs/include/**",
+        "/home/shayan/ros_projects/arise_ws/install/custom_interfaces/include/**",
+        "/home/shayan/ros_projects/arise_ws/install/body_data/include/**",
+        "/opt/ros/humble/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

@@ -1,0 +1,28 @@
+SELECT CAST(jsonb_path_query(compound,'$.right_arm_up') as REAL) AS "Right Arm Upper Angle",
+CAST(jsonb_path_query(compound,'$.right_low_angle') as REAL) AS "Right Arm Lower Angle",
+CAST(jsonb_path_query(compound,'$.right_shoulder') as REAL) AS "Right Shoulder Raise",
+CAST(jsonb_path_query(compound,'$.right_up_abduction') as REAL) AS "Right Upper Arm Abduction",
+CAST(jsonb_path_query(compound,'$.right_low_abduction') as REAL) AS "Right Lower Arm Abduction",
+a.ts FROM public."attributes" AS a where a.id like '%full_body_data';
+
+SELECT CAST(jsonb_path_query(compound,'$.left_arm_up') as REAL) AS "Left Arm Upper Angle",
+CAST(jsonb_path_query(compound,'$.left_low_angle') as REAL) AS "Left Arm Lower Angle",
+CAST(jsonb_path_query(compound,'$.left_shoulder') as REAL) AS "Left Shoulder Raise",
+CAST(jsonb_path_query(compound,'$.left_up_abduction') as REAL) AS "Left Upper Arm Abduction",
+CAST(jsonb_path_query(compound,'$.left_low_abduction') as REAL) AS "Left Lower Arm Abduction",
+a.ts FROM public."attributes" AS a where a.id like '%full_body_data';
+
+SELECT CAST(jsonb_path_query(compound,'$.neck_angle') as REAL) AS "Neck Angle",
+CAST(jsonb_path_query(compound,'$.trunk_angle') as REAL) AS "Trunk Angle",
+CAST(jsonb_path_query(compound,'$.neck_twist') as REAL) AS "Twisted Neck",
+CAST(jsonb_path_query(compound,'$.neck_bending') as REAL) AS "Bended Neck",
+CAST(jsonb_path_query(compound,'$.side_bending') as REAL) AS "Trunk Side Bended",
+a.ts FROM public."attributes" AS a where a.id like '%full_body_data';
+
+
+SELECT CAST(jsonb_path_query(compound,'$.neck_angle') as REAL) AS "Neck Angle",
+CAST(jsonb_path_query(compound,'$.trunk_angle') as REAL) AS "Trunk Angle",
+CAST(jsonb_path_query(compound,'$.neck_twist') as REAL) AS "Twisted Neck",
+CAST(jsonb_path_query(compound,'$.neck_bending') as REAL) AS "Bended Neck",
+CAST(jsonb_path_query(compound,'$.side_bending') as REAL) AS "Trunk Side Bended",
+a.ts FROM public."attributes" AS a where a.id like '%full_body_data';

@@ -1,0 +1,33 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/shayan/ros_projects/ur_controller/install/robot_interface/lib/python3.12/site-packages",
+        "/home/shayan/ros_projects/aeros_ws/install/agv_server/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/voice_transcriber/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/rula_gui/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/rula_calculator/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/point_3D_extractor/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/point_2D_extractor/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/joint_processes/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/hand_angles/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/back_data/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/shayan/ros_projects/ur_controller/install/robot_interface/lib/python3.12/site-packages",
+        "/home/shayan/ros_projects/aeros_ws/install/agv_server/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/voice_transcriber/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/rula_gui/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/rula_calculator/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/point_3D_extractor/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/point_2D_extractor/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/joint_processes/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/hand_angles/lib/python3.10/site-packages",
+        "/home/shayan/ros_projects/arise_ws/install/back_data/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "files.associations": {
+        "ostream": "cpp"
+    }
+}

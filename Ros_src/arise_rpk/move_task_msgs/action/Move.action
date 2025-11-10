@@ -1,0 +1,13 @@
+# sample action message for the 'Greet' task. This is purely
+# for illustration purpose! You would probably not implement
+# a 'greet' task using this message.
+
+
+string person_id
+string direction
+uint8 amount
+
+---
+string error_msg
+---
+string status

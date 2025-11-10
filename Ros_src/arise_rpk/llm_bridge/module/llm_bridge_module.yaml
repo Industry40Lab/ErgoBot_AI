@@ -1,0 +1,2 @@
+llm_bridge:
+  launch: "llm_bridge llm_bridge.launch.py"
