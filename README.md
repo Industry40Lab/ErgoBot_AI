@@ -26,7 +26,7 @@ This project is the second use case of the <a href="https://arise-middleware.eu/
 
 ## Operator Monitoring and RULA Calculation
 
-* **AlphaPose Model:** This model is responsible for extracting and tracking **2D body landmarks** of the operator from the camera feeds. Please follow the instruction to install the Alphapose from its <a href="https://github.com/MVIG-SJTU/AlphaPose">**official website**</a>.
+* **<a href="/Ros_src/point_2D_extractor/point_2D_extractor/point_2D.py">AlphaPose Model:</a>** This model is responsible for extracting and tracking **2D body landmarks** of the operator from the camera feeds. Please follow the instruction to install the Alphapose from its <a href="https://github.com/MVIG-SJTU/AlphaPose">**official website**</a>.
 * **Cameras:** Three **Intel RealSense cameras** are used to capture the operator's movements and posture from different angles. To setup the use of **AlphaPose** in **ROS2** with **Intel RealSense**, please replace `./alphapose/detector/yolox_api.py` with the installed AlphaPose `yolox_api.py` in the detector folder, and also replace the content in `alphapose/utils` with equivalent files in the installed AlphaPose utils.
 
 * **<a href="/ergobot_poc/build/ros2/rula_calculator/rula_calculator/rula_calculator.py">RULA Calculator:</a>** This component calculates the **Rapid Upper Limb Assessment (RULA) score** based on the extracted body landmarks. This calculation is performed within the **Vulcanexus Docker environment**. 
@@ -37,19 +37,19 @@ This project is the second use case of the <a href="https://arise-middleware.eu/
 The GUI provides the operator with real-time feedback and control. It is implemented within a Vulcanexus Docker environment.
 * **Visual Feedback:** Displays live camera feeds, visual representations of the extracted **body landmarks**, and the calculated **RULA score**.
 * **Command Input:** **Voice command activation button**, which sends activation of transcribed voice commands for the LLM processing.
-* **Audio Feedback:** **Vocal output** from the LLM is provided via a **Text-to-Speech (TTS) sound engine**.
+* **Audio Feedback:** **Vocal output** from the LLM is provided via a **<a href="/Ros_src/tts_system/tts_system/tts_engine.py">Text-to-Speech (TTS) sound engine</a>**.
 
 ## Robot Control
 
-* **LLM (Llama3) in RPK Framework:** This **large language model** processes the operator's transcribed voice commands, understands their intent, and generates appropriate robot commands. This operates within the **RPK framework**.
-* **Voice Transcriber (Whisper Model):** This component transcribes the operator's **voice commands into text**, which are then sent to the LLM.
-* **MoveIt2:** A robotic manipulation platform used for **motion planning**, **inverse kinematics**, and **collision checking**. It receives commands from the LLM and calculates trajectories for the **UR5e robot**.
-* **UR5e Driver:** Interfaces with the **UR5e robot**, receiving trajectories from MoveIt2 and executing the movements.
+* **<a href="/Ros_src/arise_rpk/">LLM (Llama3) in RPK Framework:</a>** This **large language model** processes the operator's transcribed voice commands, understands their intent, and generates appropriate robot commands. This operates within the **RPK framework**.
+* **<a href="/Ros_src/voice_transcriber/voice_transcriber/voice_transcriber.py">Voice Transcriber (Whisper Model):</a>** This component transcribes the operator's **voice commands into text**, which are then sent to the LLM.
+* **<a href="/Ros_src/ur_controler/">MoveIt2:</a>** A robotic manipulation platform used for **motion planning**, **inverse kinematics**, and **collision checking**. It receives commands from the LLM and calculates trajectories for the **UR5e robot**.
+* **<a href="/Ros_src/ur_controler/">UR5e Driver:</a>** Interfaces with the **UR5e robot**, receiving trajectories from MoveIt2 and executing the movements.
 
 ## 📊 Data Management and Visualization
 
 * **Arise Middleware:** Records the **RULA information** communicated via **NGSI-LD**, providing **historical data storage**.
-* **Grafana Dashboard:** Visualizes the **historical RULA data**, allowing for **analysis and monitoring** of operator posture over time.
+* **<a href="/ergobot_poc/conf/grafana/dashboards/Rula Information-1760105669922.json">Grafana Dashboard:</a>** Visualizes the **historical RULA data**, allowing for **analysis and monitoring** of operator posture over time.
 
 # Current Status and Plans
 
