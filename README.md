@@ -9,72 +9,47 @@
 
 <a href="https://ubuntu.com/blog/tag/ubuntu-24-04-lts">![Static Badge](https://img.shields.io/badge/Ubuntu-24.04-orange)</a>
 <a href="https://www.python.org/downloads/release/python-3100/">![Static Badge](https://img.shields.io/badge/Python-3.10-blue)</a>
-<a href="https://docs.ros.org/en/iron/index.html">![Static Badge](https://img.shields.io/badge/ROS2-iron-blue)</a>
 <a href="https://docs.ros.org/en/humble/index.html">![Static Badge](https://img.shields.io/badge/ROS2-humble-blue)</a>
 <a href="https://docs.ros.org/en/rolling/Releases/Release-Jazzy-Jalisco.html">![Static Badge](https://img.shields.io/badge/ROS2-Jazzy-blue)</a>
 
-## Description:
+# Description:
 
 <p align="center">
-  <img src="materials/diagram2.png" alt="Overall Diagram"/>
+  <img src="materials/M24_archpng.png" alt="Overall Arch"/>
 </p>
 
-This project is the second use case of the <a href="https://arise-middleware.eu/">ARISE</a> project. This work consists of two main sections: (i) the ergonomics assessment of an operator using ROS4HRI capable of 3D pose estimation of the human body, and (ii) speech commands to the robot using an LLM. The modules are described below:
-
-<ul>
-  <li>MoveIt2-based UR5e controller interface</li>
-  <li>LLM (Ollama) ROS2 implementation for intent classification</li>
-  <li>Voice transcriber based on VOSK</li>
-  <li>Active human posture tracker</li>
-  <li>Graphical User Interface for operator communication</li>
-</ul>
-
-In summary, this work represents the first scale-up of the ARISE project, where the LLM model has been implemented in the ROS2 framework to facilitate human-robot interaction. The operator sends a vocal command to the robot through a microphone. The speech signal is transcribed using the VOSK API. The transcribed command is then forwarded to the Ollama 3.2 model via a ROS2 topic for the identification of the operator’s intention(s). As a result, the identified intention(s) are translated into low-level robot commands for trajectory planning via MoveIt2. 
+This project is the second use case of the <a href="https://arise-middleware.eu/">ARISE</a> project. The system integrates three primary functionalities: operator posture assessment, LLM-based human-robot interaction, and data recording/visualization. It uses three cameras (Intel RealSense) to monitor the operator, extracts body landmarks using AlphaPose from three angles(Front, Left, and Right), calculates the Rapid Upper Limb Assessment (RULA) score, and presents this information along with camera feeds to the operator via a Graphical User Interface (GUI). The GUI also enables voice command input, which is transcribed by the Whisper model, processed by an LLM (Llama3) within the RPK framework, and then used to control a UR5e robot via MoveIt2. RULA data is communicated via NGSI-LD to Arise middleware for historical data recording and visualization in Grafana.
 
 <hr>
 
-#### UR5e MoveIt2 Controller
+# Core Components
 
-You can find the code for this module in the <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/arm_controller">**arm_controller**</a> package. The <a href="https://github.com/Industry40Lab/ErgoBot_AI/blob/main/arm_controller/src/holding_controller.cpp">`holding_controller.cpp`</a> file contains the MoveIt2 interface that processes topics for robot movement and executes the necessary motions. 
+## Operator Monitoring and RULA Calculation
 
-<hr>
+* **AlphaPose Model:** This model is responsible for extracting and tracking **2D body landmarks** of the operator from the camera feeds. Please follow the instruction to install the Alphapose from its <a href="https://github.com/MVIG-SJTU/AlphaPose">**official website**</a>.
+* **Cameras:** Three **Intel RealSense cameras** are used to capture the operator's movements and posture from different angles. To setup the use of **AlphaPose** in **ROS2** with **Intel RealSense**, please replace `./alphapose/detector/yolox_api.py` with the installed AlphaPose `yolox_api.py` in the detector folder, and also replace the content in `alphapose/utils` with equivalent files in the installed AlphaPose utils.
 
-#### LLM Implementation in ROS2
+* **<a href="/ergobot_poc/build/ros2/rula_calculator/rula_calculator/rula_calculator.py">RULA Calculator:</a>** This component calculates the **Rapid Upper Limb Assessment (RULA) score** based on the extracted body landmarks. This calculation is performed within the **Vulcanexus Docker environment**. 
+* **<a href="/ergobot_poc/build/ros2/rula_gui/rula_gui/rulaGui.py">GUI:</a>** This component is responsible for indicating the **camera feeds**, **LLM output**, activating the **voice command**, and indicating the **RULA and operator's body information output**. This component also runs within the **Vulcanexus Docker environment**.
+* **<a href="/ergobot_poc/conf/orionld/config-dds.json">NGSI-LD Communication:</a>** RULA information from the RULA Calculator is communicated using the **NGSI-LD standard**. This allows the data to be recorded by the **Arise middleware**.
 
-This project uses an LLM to classify operator intent and streamline communication between the operator and the robot. The package related to this task is the <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/llm_communicator">**llm_communicator**</a>. To implement this, we used the <a href="https://github.com/ollama/ollama/tree/main">**OLLAMA 3.2**</a> model.
+## Operator Interface (GUI)
+The GUI provides the operator with real-time feedback and control. It is implemented within a Vulcanexus Docker environment.
+* **Visual Feedback:** Displays live camera feeds, visual representations of the extracted **body landmarks**, and the calculated **RULA score**.
+* **Command Input:** **Voice command activation button**, which sends activation of transcribed voice commands for the LLM processing.
+* **Audio Feedback:** **Vocal output** from the LLM is provided via a **Text-to-Speech (TTS) sound engine**.
 
-This package has two main objectives:
+## Robot Control
 
-<ol>
-  <li>Notifying the operator in case of important alerts, such as posture adjustments.</li>
-  <li>Classifying the operator's intended actions for robot movement.</li>
-</ol>
+* **LLM (Llama3) in RPK Framework:** This **large language model** processes the operator's transcribed voice commands, understands their intent, and generates appropriate robot commands. This operates within the **RPK framework**.
+* **Voice Transcriber (Whisper Model):** This component transcribes the operator's **voice commands into text**, which are then sent to the LLM.
+* **MoveIt2:** A robotic manipulation platform used for **motion planning**, **inverse kinematics**, and **collision checking**. It receives commands from the LLM and calculates trajectories for the **UR5e robot**.
+* **UR5e Driver:** Interfaces with the **UR5e robot**, receiving trajectories from MoveIt2 and executing the movements.
 
-For the second objective, the LLM classifies user intent from a predefined list of possible intents found in the `_resource/robot_commands.txt` file. These intents are provided as a system prompt to the LLM model. 
+## 📊 Data Management and Visualization
 
-<hr>
-
-#### Voice Transcriber
-
-To enable efficient communication between the operator and the robot, particularly with the LLM model, a voice transcriber has been implemented using the <a href="https://github.com/alphacep/vosk-api">**VOSK API**</a>. The relevant code can be found in the <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/voice_command/voice_command">**voice_command**</a> package.
-
-<hr>
-
-#### Human Posture Tracker
-
-To assess user posture, we currently use Mediapipe. The assessment follows the **Rapid Upper Limb Assessment (RULA)** method, which evaluates ergonomic risks related to upper extremity musculoskeletal disorders (MSDs). RULA considers the biomechanical and postural load requirements on the neck, trunk, and upper extremities. The <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/rula_assessment">**rula_assessment**</a> package contains all the necessary information for this task.
-
-<hr>
-
-### GUI
-
-The graphical user interface for operator-robot communication is implemented in the <a href="https://github.com/Industry40Lab/ErgoBot_AI/tree/main/ergo_gui">**ergo_gui**</a> package.
-
-<p align="center">
-  <img src="materials/BAD_POSE.png" alt="GUI Screenshot"/>
-</p>
-
-<hr>
+* **Arise Middleware:** Records the **RULA information** communicated via **NGSI-LD**, providing **historical data storage**.
+* **Grafana Dashboard:** Visualizes the **historical RULA data**, allowing for **analysis and monitoring** of operator posture over time.
 
 # Current Status and Plans
 
