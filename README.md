@@ -86,7 +86,7 @@ The GUI provides the operator with real-time feedback and control. It is impleme
 | Development of ROS2 nodes for voice transcription using **VOSK api** | Development of ROS2 nodes for voice transcription using **WHISPER model** |
 | Development of customized LLM interpreter (**LlAMA 3.2**) for commands execution by robot | Integration of **LLM** using '**rpk**' |
 | Upgrading the device drivers to operate on **ROS2** (Cobots, cameras, end-effector) | Migration from ROS2 Humble to **Vulcanexus-Jazzy** |
-| *Implicit Goal:* Establishment of a dedicated use case for postural monitoring and collaborative robot ensuring comfort/decision making | Implementation of **Rapid Upper Limb Assessment (RULA)** to score the operator's posture (Inclusion of **ergonomic assessment metrics** to precisely score the posture) |
+| | Implementation of **Rapid Upper Limb Assessment (RULA)** to score the operator's posture (Inclusion of **ergonomic assessment metrics** to precisely score the posture) |
 | | Development of an intuitive **Graphical User Interface (GUI)** displaying **RULA score** and the communication of the robot and the operator |
 | | Integration of **ARISE PoC**: interoperability between DDS and NGSI\_LD protocols to create a historical posture report displayed on **Grafana Dashboard** |
 <hr>
