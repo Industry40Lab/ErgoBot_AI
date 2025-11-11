@@ -52,7 +52,7 @@ This skill manages the **safe and effective physical movement of the UR5e collab
 ## Operator Monitoring and RULA Calculation (Supports Ergonomic Identification Skill) 
 
 * ![Static Badge](https://img.shields.io/badge/Skills-1-red) **<a href="/Ros_src/point_2D_extractor/point_2D_extractor/point_2D.py">AlphaPose Model:</a>** This model is responsible for extracting and tracking **2D body landmarks** of the operator from the camera feeds. Please follow the instruction to install the Alphapose from its <a href="https://github.com/MVIG-SJTU/AlphaPose">**official website**</a>.
-* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **Cameras:** Three **Intel RealSense cameras** are used to capture the operator's movements and posture from different angles. To setup the use of **AlphaPose** in **ROS2** with **Intel RealSense**, please replace `./alphapose/detector/yolox_api.py` with the installed AlphaPose `yolox_api.py` in the detector folder, and also replace the content in `alphapose/utils` with equivalent files in the installed AlphaPose utils.
+* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **<a href="/alphapose/Utils/webcam_detector.py">Cameras:</a>** Three **Intel RealSense cameras** are used to capture the operator's movements and posture from different angles. To setup the use of **AlphaPose** in **ROS2** with **Intel RealSense**, please replace `./alphapose/detector/yolox_api.py` with the installed AlphaPose `yolox_api.py` in the detector folder, and also replace the content in `alphapose/utils` with equivalent files in the installed AlphaPose utils.
 
 * ![Static Badge](https://img.shields.io/badge/Skills-1-red) **<a href="/ergobot_poc/build/ros2/rula_calculator/rula_calculator/rula_calculator.py">RULA Calculator:</a>** This component calculates the **Rapid Upper Limb Assessment (RULA) score** based on the extracted body landmarks. This calculation is performed within the **Vulcanexus Docker environment**. 
 * ![Static Badge](https://img.shields.io/badge/Skills-1-red) **<a href="/ergobot_poc/build/ros2/rula_gui/rula_gui/rulaGui.py">GUI:</a>** This component is responsible for indicating the **camera feeds**, **LLM output**, activating the **voice command**, and indicating the **RULA and operator's body information output**. This component also runs within the **Vulcanexus Docker environment**.
@@ -62,9 +62,9 @@ This skill manages the **safe and effective physical movement of the UR5e collab
   <img src="materials/gui.png" alt="graphic user interface"/>
 
 The GUI provides the operator with real-time feedback and control. It is implemented within a Vulcanexus Docker environment.
-* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **Visual Feedback:** Displays live camera feeds, visual representations of the extracted **body landmarks**, and the calculated **RULA score**.
-* ![Static Badge](https://img.shields.io/badge/Skills-2-red) **Command Input:** **Voice command activation button**, which sends activation of transcribed voice commands for the LLM processing.
-* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **Audio Feedback:** **Vocal output** from the LLM is provided via a **<a href="/Ros_src/tts_system/tts_system/tts_engine.py">Text-to-Speech (TTS) sound engine</a>**.
+* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **<a href="/ergobot_poc/build/ros2/rula_gui/rula_gui/rulaGui.py">Visual Feedback:</a>** Displays live camera feeds, visual representations of the extracted **body landmarks**, and the calculated **RULA score**.
+* ![Static Badge](https://img.shields.io/badge/Skills-2-red) **<a href="https://github.com/Industry40Lab/ErgoBot_AI/blob/M_24/ergobot_poc/build/ros2/rula_gui/rula_gui/rulaGui.py#L274">Command Input:</a>** **Voice command activation button**, which sends activation of transcribed voice commands for the LLM processing.
+* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **<a href="/Ros_src/tts_system/tts_system/tts_engine.py">Audio Feedback:</a>** **Vocal output** from the LLM is provided via a **<a href="/Ros_src/tts_system/tts_system/tts_engine.py">Text-to-Speech (TTS) sound engine</a>**.
 
 ## Robot Control (Supports LLM Connector and Moving Robot Arm Skills) 
 
@@ -86,7 +86,7 @@ The GUI provides the operator with real-time feedback and control. It is impleme
 | Development of ROS2 nodes for voice transcription using **VOSK api** | Development of ROS2 nodes for voice transcription using **WHISPER model** |
 | Development of customized LLM interpreter (**LlAMA 3.2**) for commands execution by robot | Integration of **LLM** using '**rpk**' |
 | Upgrading the device drivers to operate on **ROS2** (Cobots, cameras, end-effector) | Migration from ROS2 Humble to **Vulcanexus-Jazzy** |
-| | Implementation of **Rapid Upper Limb Assessment (RULA)** to score the operator's posture (Inclusion of **ergonomic assessment metrics** to precisely score the posture) |
+| *Implicit Goal:* Establishment of a dedicated use case for postural monitoring and collaborative robot ensuring comfort/decision making | Implementation of **Rapid Upper Limb Assessment (RULA)** to score the operator's posture (Inclusion of **ergonomic assessment metrics** to precisely score the posture) |
 | | Development of an intuitive **Graphical User Interface (GUI)** displaying **RULA score** and the communication of the robot and the operator |
 | | Integration of **ARISE PoC**: interoperability between DDS and NGSI\_LD protocols to create a historical posture report displayed on **Grafana Dashboard** |
 <hr>
