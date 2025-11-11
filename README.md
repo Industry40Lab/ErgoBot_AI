@@ -117,27 +117,35 @@ export ROS_DOMAIN_ID=0
 ros2 run rula_calculator rula_calculator
 ```
 
-### Step 2: Start the LLM communicator
+### Step 2: Running the ARISE PoC, GUI and RULA Calculator
+Using the following code the three Intel Realsense camera's will be activated and using alphapose the body landmarks will be extracted.
+
+Please take to account that the camera can take up to three sides with int codes, where 1 represent right, 0 represent front, and 2 represent left, and acoordingly for each side there must be a camera divice number in --device_name argument.
+```bash
+ros2 run point_2D_extractor point_2D --active_sides [ACTIVE CAMERA SIDES] --device_name [SIDE DEVICES LIST] 
+```
+
+### Step 3: Start the LLM communicator
 ```bash
 export ROS_DOMAIN_ID=0
 ros2 launch ur5e_llm_controller ur5e_llm_controller.launch.py
 ```
 
-### Step 3: Activate the voice command system (Whisper)
+### Step 4: Activate the voice command system (Whisper)
 
 ```bash
 export ROS_DOMAIN_ID=0
 ros2 run voice_transcriber voice_transcriber
 ```
 
-### Step 4: Text To Sound Engine
+### Step 5: Text To Sound Engine
 ```bash
 export ROS_DOMAIN_ID=0
 ros2 run tts_system tts_engine 
 ```
 
 
-### Step 5: Start the MoveIt Config, and UR5e controllers
+### Step 6: Start the MoveIt Config, and UR5e controllers
 Run these commands one by one:
 
 ```bash
