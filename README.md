@@ -22,24 +22,24 @@ This project is the second use case of the <a href="https://arise-middleware.eu/
 
 <hr>
 
-# Robot Skills
+# ARISE Robot Skills
 
 This system in current stage adapted 3 main set of skills from skills planed to be developed in <a href="https://arise-middleware.eu/">ARISE</a> Project, defining and categorized as follow:
 
-## 1. Suitable Human Ergonomic Identification Skill
+## 1. Suitable Human Ergonomic Identification Skill ![Static Badge](https://img.shields.io/badge/Skills-1-red)
 This skill is responsible for **real-time monitoring and assessment of the operator's posture** to ensure ergonomic compliance.
 
 * **AlphaPose Model:** Extracts and tracks **2D body landmarks** from camera feeds.
 * **RULA Calculator:** Calculates the **Rapid Upper Limb Assessment (RULA) score** based on the extracted landmarks, quantifying the ergonomic risk.
 * **GUI:** Presents the **RULA score**, **body landmark visualization**, and camera feeds to the operator, providing immediate feedback.
 
-## 2. LLM Connector Skill
+## 2. LLM Connector Skill ![Static Badge](https://img.shields.io/badge/Skills-2-red)
 This skill enables **natural language understanding and interaction** by converting spoken commands into executable robot instructions via an LLM agent.
 
 * **Voice Transcriber (Whisper Model):** Converts the operator's **voice commands into text**.
 * **LLM (Llama3) in RPK Framework:** Processes the transcribed text, understands the operator's intent, and generates appropriate robot commands.
 
-## 3. Moving Robot Arm Skill
+## 3. Moving Robot Arm Skill ![Static Badge](https://img.shields.io/badge/Skills-3-red)
 This skill manages the **safe and effective physical movement of the UR5e collaborative robot arm**.
 
 * **MoveIt2:** Handles **motion planning**, **inverse kinematics**, and **collision checking** to generate safe trajectories.
@@ -49,29 +49,29 @@ This skill manages the **safe and effective physical movement of the UR5e collab
 
 # Core Components
 
-## Operator Monitoring and RULA Calculation (Supports Ergonomic Identification Skill)
+## Operator Monitoring and RULA Calculation (Supports Ergonomic Identification Skill) 
 
-* **<a href="/Ros_src/point_2D_extractor/point_2D_extractor/point_2D.py">AlphaPose Model:</a>** This model is responsible for extracting and tracking **2D body landmarks** of the operator from the camera feeds. Please follow the instruction to install the Alphapose from its <a href="https://github.com/MVIG-SJTU/AlphaPose">**official website**</a>.
-* **Cameras:** Three **Intel RealSense cameras** are used to capture the operator's movements and posture from different angles. To setup the use of **AlphaPose** in **ROS2** with **Intel RealSense**, please replace `./alphapose/detector/yolox_api.py` with the installed AlphaPose `yolox_api.py` in the detector folder, and also replace the content in `alphapose/utils` with equivalent files in the installed AlphaPose utils.
+* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **<a href="/Ros_src/point_2D_extractor/point_2D_extractor/point_2D.py">AlphaPose Model:</a>** This model is responsible for extracting and tracking **2D body landmarks** of the operator from the camera feeds. Please follow the instruction to install the Alphapose from its <a href="https://github.com/MVIG-SJTU/AlphaPose">**official website**</a>.
+* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **Cameras:** Three **Intel RealSense cameras** are used to capture the operator's movements and posture from different angles. To setup the use of **AlphaPose** in **ROS2** with **Intel RealSense**, please replace `./alphapose/detector/yolox_api.py` with the installed AlphaPose `yolox_api.py` in the detector folder, and also replace the content in `alphapose/utils` with equivalent files in the installed AlphaPose utils.
 
-* **<a href="/ergobot_poc/build/ros2/rula_calculator/rula_calculator/rula_calculator.py">RULA Calculator:</a>** This component calculates the **Rapid Upper Limb Assessment (RULA) score** based on the extracted body landmarks. This calculation is performed within the **Vulcanexus Docker environment**. 
-* **<a href="/ergobot_poc/build/ros2/rula_gui/rula_gui/rulaGui.py">GUI:</a>** This component is responsible for indicating the **camera feeds**, **LLM output**, activating the **voice command**, and indicating the **RULA and operator's body information output**. This component also runs within the **Vulcanexus Docker environment**.
+* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **<a href="/ergobot_poc/build/ros2/rula_calculator/rula_calculator/rula_calculator.py">RULA Calculator:</a>** This component calculates the **Rapid Upper Limb Assessment (RULA) score** based on the extracted body landmarks. This calculation is performed within the **Vulcanexus Docker environment**. 
+* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **<a href="/ergobot_poc/build/ros2/rula_gui/rula_gui/rulaGui.py">GUI:</a>** This component is responsible for indicating the **camera feeds**, **LLM output**, activating the **voice command**, and indicating the **RULA and operator's body information output**. This component also runs within the **Vulcanexus Docker environment**.
 * **<a href="/ergobot_poc/conf/orionld/config-dds.json">NGSI-LD Communication:</a>** RULA information from the RULA Calculator is communicated using the **NGSI-LD standard**. This allows the data to be recorded by the **Arise middleware**.
 
-## Operator Interface (GUI) (Supports Ergonomic Identification Skill)
+## Operator Interface (GUI) (Supports Ergonomic Identification Skill) 
   <img src="materials/gui.png" alt="graphic user interface"/>
 
 The GUI provides the operator with real-time feedback and control. It is implemented within a Vulcanexus Docker environment.
-* **Visual Feedback:** Displays live camera feeds, visual representations of the extracted **body landmarks**, and the calculated **RULA score**.
-* **Command Input:** **Voice command activation button**, which sends activation of transcribed voice commands for the LLM processing.
-* **Audio Feedback:** **Vocal output** from the LLM is provided via a **<a href="/Ros_src/tts_system/tts_system/tts_engine.py">Text-to-Speech (TTS) sound engine</a>**.
+* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **Visual Feedback:** Displays live camera feeds, visual representations of the extracted **body landmarks**, and the calculated **RULA score**.
+* ![Static Badge](https://img.shields.io/badge/Skills-2-red) **Command Input:** **Voice command activation button**, which sends activation of transcribed voice commands for the LLM processing.
+* ![Static Badge](https://img.shields.io/badge/Skills-1-red) **Audio Feedback:** **Vocal output** from the LLM is provided via a **<a href="/Ros_src/tts_system/tts_system/tts_engine.py">Text-to-Speech (TTS) sound engine</a>**.
 
-## Robot Control (Supports LLM Connector and Moving Robot Arm Skills)
+## Robot Control (Supports LLM Connector and Moving Robot Arm Skills) 
 
-* **<a href="/Ros_src/arise_rpk/">LLM (Llama3) in RPK Framework:</a>** This **large language model** processes the operator's transcribed voice commands, understands their intent, and generates appropriate robot commands. This operates within the **RPK framework**.
-* **<a href="/Ros_src/voice_transcriber/voice_transcriber/voice_transcriber.py">Voice Transcriber (Whisper Model):</a>** This component transcribes the operator's **voice commands into text**, which are then sent to the LLM.
-* **<a href="/Ros_src/ur_controler/">MoveIt2:</a>** A robotic manipulation platform used for **motion planning**, **inverse kinematics**, and **collision checking**. It receives commands from the LLM and calculates trajectories for the **UR5e robot**.
-* **<a href="/Ros_src/ur_controler/">UR5e Driver:</a>** Interfaces with the **UR5e robot**, receiving trajectories from MoveIt2 and executing the movements.
+*  ![Static Badge](https://img.shields.io/badge/Skills-2-red) **<a href="/Ros_src/arise_rpk/">LLM (Llama3) in RPK Framework:</a>** This **large language model** processes the operator's transcribed voice commands, understands their intent, and generates appropriate robot commands. This operates within the **RPK framework**.
+* ![Static Badge](https://img.shields.io/badge/Skills-2-red) **<a href="/Ros_src/voice_transcriber/voice_transcriber/voice_transcriber.py">Voice Transcriber (Whisper Model):</a>** This component transcribes the operator's **voice commands into text**, which are then sent to the LLM.
+* ![Static Badge](https://img.shields.io/badge/Skills-3-red) **<a href="/Ros_src/ur_controler/">MoveIt2:</a>** A robotic manipulation platform used for **motion planning**, **inverse kinematics**, and **collision checking**. It receives commands from the LLM and calculates trajectories for the **UR5e robot**.
+* ![Static Badge](https://img.shields.io/badge/Skills-3-red) **<a href="/Ros_src/ur_controler/">UR5e Driver:</a>** Interfaces with the **UR5e robot**, receiving trajectories from MoveIt2 and executing the movements.
 
 ## 📊 Data Management and Visualization
 
