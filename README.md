@@ -122,6 +122,7 @@ Using the following code the three Intel Realsense camera's will be activated an
 
 Please take to account that the camera can take up to three sides with int codes, where 1 represent right, 0 represent front, and 2 represent left, and acoordingly for each side there must be a camera divice number in --device_name argument.
 ```bash
+export ROS_DOMAIN_ID=0
 ros2 run point_2D_extractor point_2D --active_sides [ACTIVE CAMERA SIDES] --device_name [SIDE DEVICES LIST] 
 ```
 
